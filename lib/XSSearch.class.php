@@ -923,10 +923,27 @@ class XSSearch extends XSServer
 			$value = preg_replace($this->_highlight['pattern'], $this->_highlight['replace'], $value);
 		}
 		if (isset($this->_highlight['pairs'])) {
-			$value = $strtr ?
-				strtr($value, $this->_highlight['pairs']) :
-				str_replace(array_keys($this->_highlight['pairs']), array_values($this->_highlight['pairs']), $value);
-		}
+            if ($strtr) {
+                $value = strtr($value, $this->_highlight['pairs']);
+            } else {
+                uksort($this->_highlight['pairs'], function ($a, $b) {
+                    return strlen($a) > strlen($b);
+                });
+                $this->_highlight['pairs'] = array_reverse($this->_highlight['pairs']);
+
+                foreach ($this->_highlight['pairs'] as $from => $to) {
+                    // 有需要替换的
+                    if (stripos($value, $from) !== false) {
+                        foreach ($this->_highlight['pairs'] as $from1 => $to1) {
+                            if (stripos($from1, $from) !== false && stripos($value, $to1) !== false) {
+                                break 2;
+                            }
+                        }
+                        $value = str_replace($from, $to, $value);
+                    }
+                }
+            }
+        }
 		return $value;
 	}
 
