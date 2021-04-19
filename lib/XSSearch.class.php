@@ -929,12 +929,18 @@ class XSSearch extends XSServer
                 uksort($this->_highlight['pairs'], function ($a, $b) {
                     return strlen($a) > strlen($b);
                 });
-                $this->_highlight['pairs'] = array_reverse($this->_highlight['pairs']);
-
+                $this->_highlight['pairs'] = array_reverse($this->_highlight['pairs'], true);
+                
                 foreach ($this->_highlight['pairs'] as $from => $to) {
                     // 有需要替换的
+                    $value = (string) $value;
+                    $from  = (string) $from;
+                    $to    = (string) $to;
+                    
                     if (stripos($value, $from) !== false) {
                         foreach ($this->_highlight['pairs'] as $from1 => $to1) {
+                            $from1 = (string) $from1;
+                            $to1   = (string) $to1;
                             if (stripos($from1, $from) !== false && stripos($value, $to1) !== false) {
                                 break 2;
                             }
